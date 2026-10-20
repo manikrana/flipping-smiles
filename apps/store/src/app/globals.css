@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #FAFAF7;
+    color: #1A1A1A;
+  }
+}
+
+/* ── Cartoonize transform-in ─────────────────────────────────────────────────── */
+/* The photo visibly dissolving into the "creating your character" loading state,
+   rather than an instant cut to blur — sells that a real transformation is
+   happening, especially since cartoonize now fires automatically on upload. */
+@keyframes cartoonize-photo-transform {
+  0% { filter: blur(0) brightness(1); transform: scale(1); }
+  100% { filter: blur(8px) brightness(0.75); transform: scale(1.05); }
+}
+
+@keyframes cartoonize-shimmer-sweep {
+  0% { transform: translateX(-120%) skewX(-12deg); }
+  100% { transform: translateX(220%) skewX(-12deg); }
+}
+
+/* ── Liquid glass ────────────────────────────────────────────────────────────── */
+/* Honey Glow / Petal Blush surfaces: heavily blurred, translucent, backlit by
+   whatever's behind them — thick refractive edge, not a faint tint. .glass =
+   warm surface on light/cream grounds. .glass-dark = same mechanics on dark or
+   richly-colored grounds (ink footer, hero photo, etc). Needs a colorful/busy
+   background behind it or the blur has nothing to distort. */
+
+@layer components {
+  .glass {
+    position: relative;
+    isolation: isolate;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.28));
+    backdrop-filter: blur(36px) saturate(2.1) brightness(1.06);
+    -webkit-backdrop-filter: blur(36px) saturate(2.1) brightness(1.06);
+    border: 1.5px solid rgba(255, 255, 255, 0.85);
+    box-shadow:
+      0 24px 60px -16px rgba(201, 138, 46, 0.5),
+      0 4px 14px -4px rgba(201, 138, 46, 0.25),
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -14px 24px -18px rgba(201, 138, 46, 0.3);
+  }
+
+  .glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(115deg, rgba(255, 255, 255, 0.7) 0%, transparent 28%, transparent 72%, rgba(255, 255, 255, 0.35) 100%);
+    pointer-events: none;
+  }
+
+  .glass-dark {
+    position: relative;
+    isolation: isolate;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
+    backdrop-filter: blur(36px) saturate(2.1) brightness(1.1);
+    -webkit-backdrop-filter: blur(36px) saturate(2.1) brightness(1.1);
+    border: 1.5px solid rgba(255, 255, 255, 0.28);
+    box-shadow:
+      0 24px 60px -14px rgba(0, 0, 0, 0.6),
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.35),
+      inset 0 -14px 24px -18px rgba(0, 0, 0, 0.4);
+  }
+
+  .glass-dark::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: linear-gradient(115deg, rgba(255, 255, 255, 0.22) 0%, transparent 28%, transparent 72%, rgba(255, 255, 255, 0.08) 100%);
+    pointer-events: none;
+  }
+}
+

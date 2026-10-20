@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  input, textarea, select {
+    color-scheme: light;
+    background-color: white;
+    color: #111827;
+  }
+}

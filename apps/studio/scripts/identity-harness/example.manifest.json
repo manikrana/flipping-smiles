@@ -1,0 +1,28 @@
+{
+  "name": "one-child-identity-test",
+  "outputDir": "../../_identity-runs",
+  "model": "gemini-3.1-flash-image",
+  "imageSize": "4K",
+  "estimatedCostPerImageUsd": 0.15,
+  "candidatesPerVariant": 1,
+  "character": {
+    "gender": "girl",
+    "portrait": "/absolute/path/to/cartoon-portrait.png",
+    "headSheet": "/absolute/path/to/head-turnaround.png",
+    "bodySheet": "/absolute/path/to/body-or-costumed-sheet.png",
+    "bodySheetHasCostume": true
+  },
+  "variants": [
+    "production",
+    "portrait-head-first"
+  ],
+  "cases": [
+    {
+      "id": "standing-front",
+      "template": "/absolute/path/to/blank-silhouette-scene.png",
+      "heroHeadBox": [120, 710, 330, 850],
+      "heroBodyBox": [100, 650, 950, 900],
+      "sceneContext": "The child looks delighted and curious."
+    }
+  ]
+}

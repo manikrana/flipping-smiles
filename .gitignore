@@ -1,0 +1,35 @@
+# dependencies
+node_modules
+.pnpm-store
+
+# next.js
+.next/
+out/
+build/
+dist/
+
+# env files
+.env
+.env.local
+.env.*.local
+
+# turbo
+.turbo
+
+# misc
+.DS_Store
+*.pem
+*.log
+npm-debug.log*
+pnpm-debug.log*
+/apps/studio/_identity-runs/
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+.claude/
+
+# supabase CLI local cache
+supabase/.temp/

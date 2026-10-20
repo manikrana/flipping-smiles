@@ -1,0 +1,11 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "npx pnpm@9.15.4 install && npx pnpm@9.15.4 run build --filter=@kitabee/store && cp -r apps/store/.next/static apps/store/.next/standalone/apps/store/.next/static"
+  },
+  "deploy": {
+    "startCommand": "HOSTNAME=0.0.0.0 node apps/store/.next/standalone/apps/store/server.js",
+    "restartPolicyType": "ON_FAILURE"
+  }
+}
