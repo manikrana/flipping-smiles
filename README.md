@@ -4,6 +4,12 @@ Personalized children's storybook platform. Authors create story templates in St
 
 ---
 
+## Local development
+
+Install dependencies with `pnpm install`, then start the apps with `pnpm dev`.
+
+---
+
 ## Monorepo structure
 
 ```
