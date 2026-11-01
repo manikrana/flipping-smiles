@@ -197,10 +197,6 @@ EXAMPLES:
 • The whole family gathers around the table as Dadi lights the diya.
 • Mia and the little fox peek through the tall grass at the glowing fireflies beyond.
 
-FOR GIRL VARIANT PROMPTS (scene_prompt_girl):
-Only write one if the girl's outfit or action differs from the boy's scene. Call out the outfit explicitly.
-Example: "Priya twirls in her pink lehenga as the crowd watches in awe."
-
 When I give you a scene idea, output the scene prompt in the correct format.`;
 
   function handleCopySceneGptContext() {
@@ -263,7 +259,7 @@ When I give you a scene idea, output the scene prompt in the correct format.`;
   }
 
   async function handleClearImages() {
-    if (!confirm("Clear both boy and girl images for this page? This cannot be undone.")) return;
+    if (!confirm("Clear the image for this page? This cannot be undone.")) return;
     setError(null);
     try {
       await clearPageImages(story.id, page.id);
@@ -380,20 +376,9 @@ When I give you a scene idea, output the scene prompt in the correct format.`;
 
   const LayoutPreview = (
     <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm">
-      {/* Gender toggle */}
+      {/* Preview toolbar */}
       {(boyUrl || girlUrl) && (
         <div className="flex border-b border-gray-100 bg-gray-50 px-3 py-1.5 gap-2">
-          {(["boy", "girl"] as const).map((g) => (
-            <button
-              key={g}
-              onClick={() => setPreviewGender(g)}
-              className={`text-xs px-2.5 py-1 rounded-md font-medium transition-colors ${
-                previewGender === g ? "bg-white shadow-sm text-gray-700" : "text-gray-400 hover:text-gray-600"
-              }`}
-            >
-              {g === "boy" ? "👦 Boy" : "👧 Girl"}
-            </button>
-          ))}
           <button
             onClick={() => setLightboxUrl(previewImageUrl)}
             disabled={!previewImageUrl}
@@ -591,7 +576,6 @@ When I give you a scene idea, output the scene prompt in the correct format.`;
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <label className="text-xs font-medium text-gray-500">Prompt</label>
-            <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">👦 Boy</span>
             <button
               onClick={handleCopySceneGptContext}
               className="text-[11px] text-gray-400 hover:text-gray-600 border border-gray-200 hover:border-gray-300 rounded px-2 py-0.5 transition-colors"
@@ -613,62 +597,9 @@ When I give you a scene idea, output the scene prompt in the correct format.`;
           />
         </div>
 
-        {/* Scene prompt — girl override */}
-        <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <label className="text-xs font-medium text-gray-500">Prompt</label>
-            <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">👧 Girl</span>
-            <span className="text-[10px] text-gray-400">· leave blank to use boy prompt</span>
-            {scenePromptGirl.trim() && (
-              <EnhancePrompt type="scene" currentValue={scenePromptGirl} onApply={setScenePromptGirl} />
-            )}
-          </div>
-          <textarea
-            value={scenePromptGirl}
-            onChange={(e) => setScenePromptGirl(e.target.value)}
-            onBlur={handleScenePromptGirlBlur}
-            rows={3}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-500"
-            placeholder="e.g. Priya wears a pink lehenga… (override for girl variant)"
-          />
-        </div>
-
-        {/* Hero character pickers */}
-        <div className="grid grid-cols-2 gap-3">
-          {(["boy", "girl"] as const).map((gender) => {
-            const currentId = gender === "boy" ? heroBoyCharId : heroGirlCharId;
-            const current = allCharacters.find((c) => c.id === currentId);
-            return (
-              <div key={gender}>
-                <label className="block text-xs font-medium text-gray-500 mb-1">
-                  {gender === "boy" ? "👦 Boy hero" : "👧 Girl hero"}
-                  <span className="text-red-400 ml-0.5">*</span>
-                </label>
-                <select
-                  value={currentId ?? ""}
-                  onChange={(e) => handleHeroChange(gender, e.target.value || null)}
-                  className={`w-full border rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white ${
-                    !currentId ? "border-red-300 text-gray-400" : "border-gray-300 text-gray-700"
-                  }`}
-                >
-                  <option value="">— Select hero —</option>
-                  {allCharacters.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
-                {current?.sheet_url && (
-                  <div className="mt-1.5 rounded-lg overflow-hidden border border-gray-200">
-                    <img src={current.sheet_url} alt={current.name} className="w-full object-contain" />
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
         {/* Other characters on this page */}
         <div>
-          <label className="block text-xs font-medium text-gray-500 mb-1.5">Characters on this page</label>
+          <label className="block text-xs font-medium text-gray-500 mb-1.5">Supporting characters on this page</label>
           <div className="flex flex-wrap gap-1.5">
             {allCharacters.map((c) => {
                 const sel = pageCastIds.has(c.id);
@@ -788,8 +719,8 @@ When I give you a scene idea, output the scene prompt in the correct format.`;
 
         {/* Images row */}
         <div className="space-y-2">
-          <div className="grid grid-cols-2 gap-3">
-            {(["boy", "girl"] as const).map((gender) => {
+          <div className="grid grid-cols-1 gap-3">
+            {(["boy"] as const).map((gender) => {
               // girlUrl is null after a regen under the new single-template
               // system -- fall back to boyUrl so the thumbnail doesn't look
               // like generation never happened.
@@ -799,10 +730,7 @@ When I give you a scene idea, output the scene prompt in the correct format.`;
                 : (gender === "boy" ? boyGenerating : girlGenerating);
               return (
                 <div key={gender} className="space-y-1">
-                  <div className="text-xs font-medium text-gray-400 text-center">
-                    {gender === "boy" ? "👦 Boy" : "👧 Girl"}
-                  </div>
-                  <div className="relative aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                  <div className={`relative ${isSpread ? "aspect-[2/1]" : "aspect-[4/3]"} bg-gray-100 rounded-lg overflow-hidden border border-gray-200`}>
                     {generating ? (
                       <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gray-50">
                         <span className="w-6 h-6 border-2 border-brand-300 border-t-brand-600 rounded-full animate-spin" />
@@ -880,20 +808,8 @@ When I give you a scene idea, output the scene prompt in the correct format.`;
                         <span className="text-gray-300 text-2xl">?</span>
                         <button
                           onClick={() => handleRegenGender(gender)}
-                          disabled={
-                            isGenerating ||
-                            !scenePrompt.trim() ||
-                            (gender === "girl" && !boyUrl) ||
-                            (gender === "boy" && !heroBoyCharId) ||
-                            (gender === "girl" && !heroGirlCharId)
-                          }
+                          disabled={isGenerating || !scenePrompt.trim()}
                           className="text-xs bg-brand-500 hover:bg-brand-600 text-white px-3 py-1 rounded-lg disabled:opacity-40 transition-colors"
-                          title={
-                            gender === "girl" && !boyUrl ? "Generate boy first" :
-                            gender === "boy" && !heroBoyCharId ? "Select a boy hero first" :
-                            gender === "girl" && !heroGirlCharId ? "Select a girl hero first" :
-                            undefined
-                          }
                         >
                           Generate
                         </button>
