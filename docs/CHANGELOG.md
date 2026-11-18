@@ -28,4 +28,4 @@ git revert 553e50e
 git push origin main
 ```
 
-Then restart `pnpm dev`. Reverting brings back the wide-angle wording exactly as it was; this log entry stays as history.
+If `553e50e` isn't found (for example, after a squash merge changed the hash), find the commit with `git log --oneline --grep "medium shot"` and revert that one instead. Then restart `pnpm dev`. Reverting brings back the wide-angle wording exactly as it was; this log entry stays as history.
