@@ -8,6 +8,8 @@ import { trackServer } from "@/lib/track-server";
 import { getGoogleFontName } from "@/lib/fonts";
 import { DEFAULT_TEXT_STYLE, DEFAULT_TEXT_PANEL_BG, type LayoutType, type TextStyle, type TextPanelBg } from "@/lib/supabase/types";
 
+
+export type VerticalAlign = "top" | "center" | "bottom";
 const PREVIEW_PAGE_COUNT = 3;
 
 // The template's hero is a blank white silhouette (baked in at
@@ -655,7 +657,7 @@ export async function getPreviewPages(orderId: string) {
   }));
 }
 
-export async function startPreviewGeneration(orderId: string): Promise<{ totalPages: number; templateUrls: string[]; texts: string[]; textBgUrls: (string | null)[] }> {
+export async function startPreviewGeneration(orderId: string): Promise<{ totalPages: number; templateUrls: string[]; texts: string[]; textBgUrls: (string | null)[]; verticalAligns: VerticalAlign[] }> {
   const supabase = createServerClient();
 
   const { data: order, error: orderErr } = await supabase
@@ -680,7 +682,7 @@ export async function startPreviewGeneration(orderId: string): Promise<{ totalPa
   // Prefer pages marked as preview-eligible; fall back to first pages with images
   const { data: previewPages } = await supabase
     .from("story_pages")
-    .select("page_number, image_url, text, text_bg_url")
+    .select("page_number, image_url, text, text_bg_url, vertical_align")
     .eq("story_id", order.story_id)
     .eq("preview_eligible", true)
     .not("image_url", "is", null)
@@ -692,7 +694,7 @@ export async function startPreviewGeneration(orderId: string): Promise<{ totalPa
   if (!storyPages.length) {
     const { data: fallbackPages } = await supabase
       .from("story_pages")
-      .select("page_number, image_url, text, text_bg_url")
+      .select("page_number, image_url, text, text_bg_url, vertical_align")
       .eq("story_id", order.story_id)
       .not("image_url", "is", null)
       .order("page_number", { ascending: true })
@@ -733,7 +735,10 @@ export async function startPreviewGeneration(orderId: string): Promise<{ totalPa
   const texts = storyPages.map((p) => personalizeText(p.text, order.hero_name, previewGender));
   const textBgUrls = storyPages.map((p) => (p.text_bg_url ? (signedMap[p.text_bg_url] ?? p.text_bg_url) : null));
 
-  return { totalPages: storyPages.length, templateUrls, texts, textBgUrls };
+  // Same default as the studio composite (apps/studio backgrounds/text/actions.ts): unset = bottom.
+  const verticalAligns = storyPages.map((p) => ((p as { vertical_align?: VerticalAlign | null }).vertical_align ?? "bottom"));
+
+  return { totalPages: storyPages.length, templateUrls, texts, textBgUrls, verticalAligns };
 }
 
 export async function generatePreviewPage(orderId: string, pageIndex: number): Promise<{ imageUrl: string; pageNumber: number }> {

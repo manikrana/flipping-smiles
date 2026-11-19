@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { startPreviewGeneration, generatePreviewPage, exportPreviewPdf } from "./actions";
+import { startPreviewGeneration, generatePreviewPage, exportPreviewPdf, type VerticalAlign } from "./actions";
 import { TrackedImage } from "@/components/TrackedImage";
 import { panelBgStyle } from "@/lib/textPanelBg";
 import type { LayoutType, TextStyle, TextPanelBg } from "@/lib/supabase/types";
@@ -25,6 +25,7 @@ type PreviewPage = {
   imageUrl: string;
   text: string;
   textBgUrl: string | null;
+  verticalAlign: VerticalAlign;
 };
 
 type SlotState = {
@@ -37,6 +38,7 @@ type SlotState = {
   error: string | null;
   text: string;
   textBgUrl: string | null;
+  verticalAlign: VerticalAlign;
 };
 
 function isSpreadLayout(layoutType: LayoutType): boolean {
@@ -84,6 +86,7 @@ function PreviewContent({
   imageUrl,
   text,
   textBgUrl,
+  verticalAlign,
   textStyle,
   textPanelBg,
   layoutType,
@@ -93,6 +96,7 @@ function PreviewContent({
   imageUrl: string;
   text: string;
   textBgUrl: string | null;
+  verticalAlign: VerticalAlign;
   textStyle: TextStyle;
   textPanelBg: TextPanelBg;
   layoutType: LayoutType;
@@ -137,8 +141,16 @@ function PreviewContent({
         <>
           <TrackedImage context="order_page_preview" orderId={orderId} src={imageUrl} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
           <div
-            className="absolute inset-y-0 flex items-center justify-center px-[4%] text-center"
-            style={spreadTextSide(layoutType) === "left" ? { left: 0, right: "50%" } : { left: "50%", right: 0 }}
+            className="absolute flex justify-center px-[4%] text-center"
+            style={{
+              ...(spreadTextSide(layoutType) === "left" ? { left: 0, right: "50%" } : { left: "50%", right: 0 }),
+              // Mirrors the studio preview and print composite: top/bottom sit 8% in from the edge.
+              ...(verticalAlign === "top"
+                ? { top: "8%", bottom: "auto", alignItems: "flex-start" }
+                : verticalAlign === "center"
+                ? { top: 0, bottom: 0, alignItems: "center" }
+                : { top: "auto", bottom: "8%", alignItems: "flex-end" }),
+            }}
           >
             <p
               className="whitespace-pre-wrap leading-relaxed rounded-2xl px-5 py-4"
@@ -191,6 +203,7 @@ function PreviewSlot({
   imageUrl,
   text,
   textBgUrl,
+  verticalAlign,
   textStyle,
   textPanelBg,
   generating,
@@ -211,6 +224,7 @@ function PreviewSlot({
   imageUrl: string | null;
   text: string;
   textBgUrl: string | null;
+  verticalAlign: VerticalAlign;
   textStyle: TextStyle;
   textPanelBg: TextPanelBg;
   generating: boolean;
@@ -241,6 +255,7 @@ function PreviewSlot({
           imageUrl={imageUrl}
           text={text}
           textBgUrl={textBgUrl}
+          verticalAlign={verticalAlign}
           textStyle={textStyle}
           textPanelBg={textPanelBg}
           layoutType={layoutType}
@@ -367,6 +382,7 @@ export function PreviewGenerator({
         error: null,
         text: p.text,
         textBgUrl: p.textBgUrl,
+        verticalAlign: p.verticalAlign,
       }));
     }
     return [];
@@ -395,7 +411,7 @@ export function PreviewGenerator({
     setError(null);
 
     try {
-      const { totalPages, templateUrls: templates, texts, textBgUrls } = await startPreviewGeneration(orderId);
+      const { totalPages, templateUrls: templates, texts, textBgUrls, verticalAligns } = await startPreviewGeneration(orderId);
       setTemplateUrls(templates);
 
       // Create slot states
@@ -409,6 +425,7 @@ export function PreviewGenerator({
         error: null,
         text: texts[i] ?? "",
         textBgUrl: textBgUrls[i] ?? null,
+        verticalAlign: verticalAligns[i] ?? "bottom",
       }));
       setSlots(initialSlots);
 
@@ -519,6 +536,7 @@ export function PreviewGenerator({
               imageUrl={expandedUrl}
               text={expandedSlot.text}
               textBgUrl={expandedSlot.textBgUrl}
+              verticalAlign={expandedSlot.verticalAlign}
               textStyle={textStyle}
               textPanelBg={textPanelBg}
               layoutType={layoutType}
@@ -545,6 +563,7 @@ export function PreviewGenerator({
                 imageUrl={imageUrl}
                 text={isReal ? slot.text : ""}
                 textBgUrl={isReal ? slot.textBgUrl : null}
+                verticalAlign={isReal ? slot.verticalAlign : "bottom"}
                 textStyle={textStyle}
                 textPanelBg={textPanelBg}
                 generating={generating}

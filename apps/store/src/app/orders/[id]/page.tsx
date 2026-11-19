@@ -79,6 +79,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
         textImageUrl: p.text_image_url ? (signedMap[p.text_image_url] ?? p.text_image_url) : null,
         text: (sp?.text ?? "").replace(/{{hero_name}}/g, order.hero_name),
         textBgUrl: sp?.text_bg_url ? (signedMap[sp.text_bg_url] ?? sp.text_bg_url) : null,
+        verticalAlign: sp?.vertical_align ?? "bottom",
       };
     });
 
