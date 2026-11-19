@@ -3,6 +3,7 @@
 import { createServerClient } from "@/lib/supabase/server";
 import { signAsset, signAssets } from "@/lib/supabase/assets";
 import { getGemini, NANO_BANANA_2_MODEL, urlToInlineData, extractImageBuffer, generateCostumedSheetBuffer, generateHeadSheetBuffer, GeminiNoImageError } from "@/lib/gemini";
+import { refineHeroFace } from "@/lib/faceRefine";
 import { logGeminiCall } from "@/lib/geminiLog";
 import { trackServer } from "@/lib/track-server";
 import { getGoogleFontName } from "@/lib/fonts";
@@ -461,7 +462,15 @@ async function generateScene(
         continue;
       }
     }
-    const { error } = await supabase.storage.from("assets").upload(storagePath, buffer, { contentType: "image/webp", upsert: true });
+    const refinedBuffer = await refineHeroFace({
+      fillInBuffer: buffer,
+      portraitUrl: cartoonHeadshotUrl,
+      headSheetUrl,
+      onGeminiCall: logCtx
+        ? (k) => logGeminiCall(supabase, { callType: k === "detect" ? "order_face_detect_page" : "order_face_refine_page", storyId: logCtx.storyId, pageId: logCtx.pageId, orderId: logCtx.orderId })
+        : undefined,
+    });
+    const { error } = await supabase.storage.from("assets").upload(storagePath, refinedBuffer, { contentType: "image/webp", upsert: true });
     if (error) throw new Error(`Upload failed: ${error.message}`);
     return { path: storagePath, identityVerified: true };
   }
@@ -470,7 +479,15 @@ async function generateScene(
   // (don't block the pipeline) but flag it unverified so admins can see and
   // retry manually.
   const best = await pickBestCandidate(supabase, candidates, characterImageUrl, cartoonHeadshotUrl, headSheetUrl, logCtx);
-  const { error } = await supabase.storage.from("assets").upload(storagePath, best, { contentType: "image/webp", upsert: true });
+  const refinedBest = await refineHeroFace({
+    fillInBuffer: best,
+    portraitUrl: cartoonHeadshotUrl,
+    headSheetUrl,
+    onGeminiCall: logCtx
+      ? (k) => logGeminiCall(supabase, { callType: k === "detect" ? "order_face_detect_page" : "order_face_refine_page", storyId: logCtx.storyId, pageId: logCtx.pageId, orderId: logCtx.orderId })
+      : undefined,
+  });
+  const { error } = await supabase.storage.from("assets").upload(storagePath, refinedBest, { contentType: "image/webp", upsert: true });
   if (error) throw new Error(`Upload failed: ${error.message}`);
   return { path: storagePath, identityVerified: false };
 }

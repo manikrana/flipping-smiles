@@ -28,7 +28,12 @@ export type GeminiCallType =
   | "order_preserve_judge_cover"
   | "order_dupe_judge_cover"
   | "order_rank_judge_page"
-  | "order_rank_judge_cover";
+  | "order_rank_judge_cover"
+  // Second-pass face refinement (lib/faceRefine.ts).
+  | "order_face_detect_page"
+  | "order_face_refine_page"
+  | "order_face_detect_cover"
+  | "order_face_refine_cover";
 
 export async function logGeminiCall(
   supabase: ReturnType<typeof createServerClient>,
