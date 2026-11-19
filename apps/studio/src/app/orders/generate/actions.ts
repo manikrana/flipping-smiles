@@ -765,8 +765,14 @@ async function getOrCreateCostumedSheet(
     void lastBuffer;
     return null;
   } catch (err) {
+    // Generation itself failed (most often Google still busy after the
+    // retries in getGemini). Returning null here used to fall back to the
+    // neutral sheet, so every page invented its own outfit and the wardrobe
+    // judge never ran. Fail this page instead: nothing is cached, so "try
+    // again" rebuilds the costume sheet. (A sheet that fails the identity
+    // judge still falls back above -- face likeness wins over the outfit.)
     console.error("[order/costume] Costumed sheet generation failed:", err);
-    return null;
+    throw new Error("Costume sheet could not be generated right now; please try again.");
   }
 }
 
