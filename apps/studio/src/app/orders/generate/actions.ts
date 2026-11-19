@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { DEFAULT_TEXT_STYLE, type TextStyle } from "@/lib/supabase/types";
 import { compositeTextOntoImage, resolveFontPath } from "@/lib/composite";
 import { getGemini, NANO_BANANA_2_MODEL, urlToInlineData, extractImageBuffer, generateCostumedSheetBuffer, generateHeadSheetBuffer, GeminiNoImageError } from "@/lib/gemini";
+import { refineHeroFace } from "@/lib/faceRefine";
 import { logGeminiCall } from "@/lib/geminiLog";
 import sharp from "sharp";
 
@@ -589,7 +590,20 @@ async function generateOrderScene(
       }
     }
 
-    const path = await uploadBufferToStorage(supabase, buffer, storagePath, "image/webp");
+    const refinedBuffer = await refineHeroFace({
+      fillInBuffer: buffer,
+      portraitUrl: groundTruthPortraitUrl,
+      headSheetUrl,
+      onGeminiCall: logCtx
+        ? (k) => logGeminiCall(supabase, {
+            callType: k === "detect"
+              ? (logCtx.kind === "cover" ? "order_face_detect_cover" : "order_face_detect_page")
+              : (logCtx.kind === "cover" ? "order_face_refine_cover" : "order_face_refine_page"),
+            storyId: logCtx.storyId, pageId: logCtx.pageId, orderId: logCtx.orderId,
+          })
+        : undefined,
+    });
+    const path = await uploadBufferToStorage(supabase, refinedBuffer, storagePath, "image/webp");
     return { path, identityVerified: true };
   }
 
@@ -597,7 +611,20 @@ async function generateOrderScene(
   // (don't block the pipeline) but flag it unverified so admins can see and
   // retry manually.
   const best = await pickBestCandidate(supabase, candidates, characterSheetUrl, groundTruthPortraitUrl, headSheetUrl, logCtx);
-  const path = await uploadBufferToStorage(supabase, best, storagePath, "image/webp");
+  const refinedBest = await refineHeroFace({
+    fillInBuffer: best,
+    portraitUrl: groundTruthPortraitUrl,
+    headSheetUrl,
+    onGeminiCall: logCtx
+      ? (k) => logGeminiCall(supabase, {
+          callType: k === "detect"
+            ? (logCtx.kind === "cover" ? "order_face_detect_cover" : "order_face_detect_page")
+            : (logCtx.kind === "cover" ? "order_face_refine_cover" : "order_face_refine_page"),
+          storyId: logCtx.storyId, pageId: logCtx.pageId, orderId: logCtx.orderId,
+        })
+      : undefined,
+  });
+  const path = await uploadBufferToStorage(supabase, refinedBest, storagePath, "image/webp");
   return { path, identityVerified: false };
 }
 

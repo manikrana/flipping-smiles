@@ -15,6 +15,12 @@
 // image.
 export const GEMINI_CALL_COST_USD: Record<string, number> = {
   // Judge / validation calls.
+  // Face-refine pass (lib/faceRefine.ts): one detection call (text out) and
+  // one 1:1 ~1K image redraw per page.
+  order_face_detect_page: 0.0004,
+  order_face_detect_cover: 0.0004,
+  order_face_refine_page: 0.07,
+  order_face_refine_cover: 0.07,
   order_judge_page: 0.0004,
   order_judge_cover: 0.0004,
   order_wardrobe_judge_page: 0.0004,
