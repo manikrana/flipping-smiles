@@ -1,5 +1,46 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+// Google's image model regularly returns 503 "experiencing high demand"
+// (and 429 rate limits) for a few seconds at a time. Without a retry, one
+// busy moment silently cost an order its costume sheet (pages then invented
+// different pajamas) and skipped the face-refine pass. Every
+// generateContent call made through getGemini() now waits and retries these
+// transient errors: 2s, 5s, then 10s. Anything else -- 402 out of credits,
+// 400 bad request, safety blocks -- still fails immediately.
+const TRANSIENT_GEMINI_STATUSES = new Set([429, 500, 502, 503, 504]);
+const GEMINI_RETRY_DELAYS_MS = [2000, 5000, 10000];
+
+export function isTransientGeminiError(err: unknown): boolean {
+  const status = (err as { status?: unknown } | null)?.status;
+  if (typeof status === "number") return TRANSIENT_GEMINI_STATUSES.has(status);
+  const message = err instanceof Error ? err.message : "";
+  return /\[(429|500|502|503|504) /.test(message);
+}
+
+export async function withGeminiRetry<T>(fn: () => Promise<T>): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (!isTransientGeminiError(err) || attempt >= GEMINI_RETRY_DELAYS_MS.length) throw err;
+      const delay = GEMINI_RETRY_DELAYS_MS[attempt];
+      const status = (err as { status?: unknown }).status ?? "transient error";
+      console.warn(`[gemini] busy (${status}), retry ${attempt + 1}/${GEMINI_RETRY_DELAYS_MS.length} in ${delay / 1000}s`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+}
+
+class RetryingGemini extends GoogleGenerativeAI {
+  override getGenerativeModel(...args: Parameters<GoogleGenerativeAI["getGenerativeModel"]>) {
+    const model = super.getGenerativeModel(...args);
+    const original = model.generateContent.bind(model);
+    model.generateContent = ((...callArgs: Parameters<typeof original>) =>
+      withGeminiRetry(() => original(...callArgs))) as typeof model.generateContent;
+    return model;
+  }
+}
+
 // Lazy so importing this module doesn't throw at build/import time when
 // GOOGLE_GEMINI_API_KEY isn't set (Next collects route data at build time,
 // which evaluates this module even though no request is being served then).
@@ -9,7 +50,7 @@ export function getGemini(): GoogleGenerativeAI {
     if (!process.env.GOOGLE_GEMINI_API_KEY) {
       throw new Error("GOOGLE_GEMINI_API_KEY environment variable is not set");
     }
-    cachedGemini = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
+    cachedGemini = new RetryingGemini(process.env.GOOGLE_GEMINI_API_KEY);
   }
   return cachedGemini;
 }

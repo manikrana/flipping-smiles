@@ -10,7 +10,16 @@ import { cartoonizeRatelimit, CARTOONIZE_MAX_ATTEMPTS } from "@/lib/ratelimit";
 import { headers } from "next/headers";
 import { getOrCreateCartId } from "@/lib/cart";
 
-export async function cartoonize(formData: FormData): Promise<{ cartoonUrl: string; characterId: string }> {
+// Shown to the customer when Google's safety filter keeps refusing the photo.
+// Returned (not thrown) because Next.js hides thrown server-action messages in
+// production builds, so a thrown message would never reach the customer.
+const PHOTO_REJECTED_MESSAGE =
+  "We couldn't use this photo. Please try a clear, front-facing photo of just your child in everyday clothes.";
+const PHOTO_BLOCK_REASONS = new Set(["IMAGE_SAFETY", "PROHIBITED_CONTENT"]);
+
+export async function cartoonize(
+  formData: FormData
+): Promise<{ cartoonUrl: string; characterId: string } | { error: string }> {
   const ip = (await headers()).get("x-forwarded-for")?.split(",")[0].trim() ?? "anonymous";
   const { success, remaining } = await cartoonizeRatelimit.limit(ip);
   if (!success) throw new Error(`Too many requests — you can cartoonize ${CARTOONIZE_MAX_ATTEMPTS} photos per hour. Please try again later.`);
@@ -134,9 +143,11 @@ Generic Pixar face, anime features, beauty retouching, altered nose, altered hai
       break;
     } catch (err) {
       lastError = err;
-      const isSafetyBlock = err instanceof GeminiNoImageError && err.finishReason === "IMAGE_SAFETY";
+      // PROHIBITED_CONTENT (a block on the input photo) is just as
+      // intermittent as IMAGE_SAFETY on ordinary child photos, so both retry.
+      const isSafetyBlock = err instanceof GeminiNoImageError && PHOTO_BLOCK_REASONS.has(err.finishReason);
       if (!isSafetyBlock || attempt === MAX_SAFETY_ATTEMPTS) break;
-      console.warn(`[cartoonize] IMAGE_SAFETY block, retrying (attempt ${attempt}/${MAX_SAFETY_ATTEMPTS})`);
+      console.warn(`[cartoonize] ${(err as GeminiNoImageError).finishReason} block, retrying (attempt ${attempt}/${MAX_SAFETY_ATTEMPTS})`);
       trackServer("cartoonize_safety_retry", { properties: { character_id: character.id, attempt } });
     }
   }
@@ -144,6 +155,9 @@ Generic Pixar face, anime features, beauty retouching, altered nose, altered hai
     const reason = lastError instanceof GeminiNoImageError ? lastError.finishReason : `error: ${(lastError as Error).message.slice(0, 120)}`;
     await supabase.from("characters").update({ generation_status: "failed" }).eq("id", character.id);
     trackServer("cartoonize_failed", { properties: { character_id: character.id, reason } });
+    if (lastError instanceof GeminiNoImageError && PHOTO_BLOCK_REASONS.has(lastError.finishReason)) {
+      return { error: PHOTO_REJECTED_MESSAGE };
+    }
     throw lastError;
   }
   await logGeminiCall(supabase, { callType: "character_cartoon" });

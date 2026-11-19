@@ -180,6 +180,14 @@ export function OrderForm({ story, defaultCharacters }: { story: StoryRow; defau
 
       const result = await cartoonize(fd);
       stopTimers();
+      if ("error" in result) {
+        // Photo refused by Google's safety filter (after retries) -- a
+        // specific, actionable message instead of the generic failure text.
+        // The attempt isn't counted against retriesLeft.
+        setProgress(0);
+        setCartoonError(result.error);
+        return;
+      }
       setProgress(100);
       setCartoonHistory((prev) => [...prev, result]);
       setSelectedCartoonId(result.characterId);
