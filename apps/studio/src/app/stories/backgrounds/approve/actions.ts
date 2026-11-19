@@ -304,8 +304,8 @@ export async function generateSpreadScene(
 
       `━━━ SCENE ━━━\n` +
       `${scenePrompt}\n\n` +
-      `Render this as a single wide-angle shot. The camera is at ground level, looking across the scene at eye height.\n` +
-      `Same camera, same lighting, same ground plane across the entire width — as if photographed with one wide lens.\n\n` +
+      `Render this as a single continuous medium shot. The camera is at eye height, looking into the scene.\n` +
+      `Same camera, same lighting, same ground plane across the entire width — as if photographed with one lens.\n\n` +
 
       `━━━ SCENE ZONE LAYOUT ━━━\n` +
       (sceneDir === "left"
@@ -317,6 +317,9 @@ export async function generateSpreadScene(
           `Characters may naturally bleed down to X 35% but faces and main bodies must stay right of 40%.\n`) +
       sceneNounLine +
       `The ${TEXT_HALF} half is the background of the same scene — same ground, same sky, same environment — just without any focal subjects.\n\n` +
+
+      `━━━ HERO FRAMING ━━━\n` +
+      `Unless the scene explicitly calls for a distant view, THE HERO is in the foreground, close to the camera and large in the frame — about two-thirds of the image height, framed roughly from the knees up — with the body and head turned toward the viewer. The environment surrounds THE HERO; do not shrink THE HERO to fit more of the setting into view.\n\n` +
 
       `━━━ CHARACTERS ━━━\n` +
       `${HERO_SILHOUETTE_INSTRUCTION}\n\n` +
@@ -334,15 +337,18 @@ export async function generateSpreadScene(
       `  - One continuous scene — identical ground plane, sky, lighting, and camera angle across the full width\n` +
       `  - Do not introduce new objects or environments not implied by the scene`
 
-    : `Create one continuous panoramic children's storybook illustration, rendered from a single wide-angle virtual camera in 16:9 widescreen landscape — not two separate images, panels, tiles, or compositions.\n\n` +
+    : `Create one continuous children's storybook illustration in 16:9 widescreen landscape, framed as a medium shot from a single virtual camera — not two separate images, panels, tiles, or compositions.\n\n` +
 
       `━━━ SCENE ━━━\n` +
       `${scenePrompt}\n\n` +
 
       `━━━ COMPOSITION ━━━\n` +
-      `Place the family and focal subjects together in the ${SCENE_HALF} portion of the panorama, leaving generous open environmental space on the ${TEXT_HALF} side — give the subjects real room, not a cramped half-width space. The ${TEXT_HALF} side is part of the exact same physical landscape, simply with fewer objects in it; it is not a different place.\n\n` +
+      `Place the family and focal subjects together in the ${SCENE_HALF} portion of the image, leaving generous open environmental space on the ${TEXT_HALF} side — give the subjects real room, not a cramped half-width space. The ${TEXT_HALF} side is part of the exact same physical landscape, simply with fewer objects in it; it is not a different place.\n\n` +
       `Identify the single most prominent continuous physical feature already implied by the scene above — a path, trail, shoreline, riverbank, canal, or ridge line — and render it running unbroken across the full width of the frame, physically connecting the two sides as one continuous piece of ground. If nothing like that is implied by the scene, use the horizon and mountain/tree line itself as that unbroken connecting thread instead. Maintain one continuous terrain, sky, horizon, and lighting across the full width.\n\n` +
       `Render the ${TEXT_HALF} side exactly as sharp, crisp, and identically color-graded (same exposure, white balance, color temperature, contrast, saturation) as the ${SCENE_HALF} side. Nothing about either side should look like a separately generated patch stitched to the other.\n\n` +
+
+      `━━━ HERO FRAMING ━━━\n` +
+      `Unless the scene explicitly calls for a distant view, THE HERO is in the foreground, close to the camera and large in the frame — about two-thirds of the image height, framed roughly from the knees up — with the body and head turned toward the viewer. The environment surrounds THE HERO; do not shrink THE HERO to fit more of the setting into view.\n\n` +
 
       `━━━ CHARACTERS ━━━\n` +
       `${HERO_SILHOUETTE_INSTRUCTION}\n\n` +
