@@ -1,8 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Lazy so importing this module doesn't throw at build/import time when
-// GOOGLE_GEMINI_API_KEY isn't set (Next collects route data at build time,
-// which evaluates this module even though no request is being served then).
 // Google's image model regularly returns 503 "experiencing high demand"
 // (and 429 rate limits) for a few seconds at a time. Without a retry, one
 // busy moment silently cost an order its costume sheet (pages then invented
@@ -44,6 +41,9 @@ class RetryingGemini extends GoogleGenerativeAI {
   }
 }
 
+// Lazy so importing this module doesn't throw at build/import time when
+// GOOGLE_GEMINI_API_KEY isn't set (Next collects route data at build time,
+// which evaluates this module even though no request is being served then).
 let cachedGemini: GoogleGenerativeAI | null = null;
 export function getGemini(): GoogleGenerativeAI {
   if (!cachedGemini) {
