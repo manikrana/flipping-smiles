@@ -108,7 +108,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
             {existingPages.length > 0 ? `${order.hero_name}'s adventure` : `Creating ${order.hero_name}'s preview…`}
           </h1>
           <p className="text-sm text-ink/40">
-            {story.title}
+            {story.title.replace(/{{hero_name}}/g, order.hero_name)}
           </p>
         </div>
 
@@ -139,7 +139,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
         <PreviewGenerator
           orderId={id}
           existingPages={existingPages}
-          storyTitle={story.title}
+          storyTitle={story.title.replace(/{{hero_name}}/g, order.hero_name)}
           priceUsd={story.price_usd}
           heroName={order.hero_name}
           bookSlug={story.slug}

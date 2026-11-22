@@ -56,7 +56,7 @@ export default async function CartPage() {
     return {
       id: o.id,
       heroName: o.hero_name,
-      storyTitle: story?.title ?? "Personalized book",
+      storyTitle: story?.title ? story.title.replace(/{{hero_name}}/g, o.hero_name) : "Personalized book",
       coverUrl: coverPath ? (signedCovers[coverPath] ?? null) : null,
       coverLayout: { ...DEFAULT_COVER_LAYOUT, ...(story?.cover_layout ?? {}) },
       amountUsd: o.amount_usd,

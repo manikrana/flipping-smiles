@@ -3,7 +3,7 @@ import { DEFAULT_COVER_LAYOUT, type StoryRow } from "@/lib/supabase/types";
 import { TrackedImage } from "./TrackedImage";
 import { FrontCoverOverlay } from "./FrontCoverOverlay";
 import { FRONT_COVER_IMAGE_CLASSES } from "@/lib/coverCrop";
-import { pickDefaultHeroName } from "@/lib/heroNames";
+import { sampleHeroName, fillHeroName } from "@/lib/heroNames";
 
 const STARS = "★★★★★";
 
@@ -21,13 +21,13 @@ export function BookCard({ story, companyName }: { story: StoryRow; companyName:
               context="book_cover_card"
               storyId={story.id}
               src={story.cover_image_url}
-              alt={story.title}
+              alt={fillHeroName(story.title, sampleHeroName(story))}
               className={`w-full h-full transition-transform duration-300 ${FRONT_COVER_IMAGE_CLASSES} group-hover:scale-[1.19]`}
             />
             {/* "boy" matches cover_image_url below -- keep them in sync if a girl cover ever renders here */}
             <FrontCoverOverlay
-              title={story.title}
-              subtitle={layout.subtitle.replace(/{{hero_name}}/g, pickDefaultHeroName(story.id, "boy"))}
+              title={fillHeroName(story.title, sampleHeroName(story))}
+              subtitle={fillHeroName(layout.subtitle, sampleHeroName(story))}
               companyName={companyName}
               titlePosition={layout.titlePosition}
               titleColor={layout.titleColor}
@@ -49,7 +49,7 @@ export function BookCard({ story, companyName }: { story: StoryRow; companyName:
       <div className="p-5">
         <div className="text-brand-500 text-sm tracking-widest mb-1.5">{STARS}</div>
         <h3 className="font-display font-semibold text-lg text-ink leading-snug mb-1">
-          {story.title}
+          {fillHeroName(story.title, sampleHeroName(story))}
         </h3>
         <p className="text-ink/50 text-sm leading-relaxed line-clamp-2 mb-4">
           {story.description}

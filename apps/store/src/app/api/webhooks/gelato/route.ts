@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
           await sendShippingNotification({
             to: order.contact_email,
             heroName: order.hero_name,
-            bookTitle: order.stories?.title ?? "your book",
+            bookTitle: order.stories?.title ? order.stories.title.replace(/{{hero_name}}/g, order.hero_name) : "your book",
             orderId,
             trackingNumber: trackingCode,
             trackingUrl,
