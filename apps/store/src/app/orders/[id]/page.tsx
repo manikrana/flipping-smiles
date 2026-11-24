@@ -1,3 +1,4 @@
+import { personalizeText } from "@/lib/personalize";
 import { createServerClient } from "@/lib/supabase/server";
 import { signAssets } from "@/lib/supabase/assets";
 import { notFound } from "next/navigation";
@@ -77,7 +78,9 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
         pageNumber: p.page_number,
         imageUrl: signedMap[p.image_url] ?? p.image_url,
         textImageUrl: p.text_image_url ? (signedMap[p.text_image_url] ?? p.text_image_url) : null,
-        text: (sp?.text ?? "").replace(/{{hero_name}}/g, order.hero_name),
+        // Full personalization (name + pronouns): reloading this page used to
+        // show raw {{hero_his}}/{{hero_he}} tokens because only the name was swapped.
+        text: personalizeText(sp?.text ?? "", order.hero_name, order.gender === "girl" ? "girl" : "boy"),
         textBgUrl: sp?.text_bg_url ? (signedMap[sp.text_bg_url] ?? sp.text_bg_url) : null,
         verticalAlign: sp?.vertical_align ?? "bottom",
       };
@@ -103,7 +106,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
         </div>
       </div>
 
-      <div className="relative max-w-lg mx-auto px-6 pt-16 pb-20">
+      <div className="relative max-w-lg mx-auto px-6 pt-24 pb-20">
         {/* Header: the personalized book title is the headline (it was a small grey
             line that slid under the sticky step bar); scroll-mt keeps it clear of
             the bar when the page scrolls to it. */}
