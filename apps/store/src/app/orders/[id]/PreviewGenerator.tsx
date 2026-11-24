@@ -553,7 +553,13 @@ export function PreviewGenerator({
 
       {/* Preview slots */}
       {(slots.length > 0 || initializing) && (
-        <div className="space-y-4">
+        <div
+          className="space-y-4"
+          // Wide (spread) cards break out of the narrow page column to ~75% of the
+          // expanded view (which is min(90vw, 90vh x 2)), centered; never narrower
+          // than the column itself, so phones are unchanged.
+          style={wide ? { width: "max(100%, min(67.5vw, 135vh))", position: "relative", left: "50%", transform: "translateX(-50%)" } : undefined}
+        >
           {(slots.length > 0 ? slots : Array.from({ length: templateUrls.length || 2 }, () => ({} as SlotState))).map((slot, i) => {
             const isReal = slots.length > 0;
             const generating = isReal ? slot.generating : true;

@@ -99,11 +99,12 @@
   background-clip: text;
   color: transparent;
   filter: drop-shadow(0 0 14px rgba(252, 174, 33, 0.35));
-  animation: magic-glint 5s ease-in-out infinite;
+  /* Sweep takes ~3s (half the original speed), then rests ~4s. */
+  animation: magic-glint 7s ease-in-out infinite;
 }
 @keyframes magic-glint {
-  0%, 55% { background-position: 150% 0, 0 0; }
-  85%, 100% { background-position: -60% 0, 0 0; }
+  0%, 45% { background-position: 150% 0, 0 0; }
+  88%, 100% { background-position: -60% 0, 0 0; }
 }
 .magic-sparkle {
   filter: drop-shadow(0 0 4px rgba(252, 174, 33, 0.8));
