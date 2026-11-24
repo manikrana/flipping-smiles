@@ -503,9 +503,18 @@ export function PreviewGenerator({
           : s
       ));
     } catch (err) {
+      console.error(`[preview] regenerate slot ${slotIndex}:`, (err as Error).message);
       progressTimers.current[slotIndex]?.();
       setSlots((prev) => prev.map((s, i) =>
-        i === slotIndex ? { ...s, generating: false, error: "Something went wrong. Please try again." } : s
+        i === slotIndex
+          ? {
+              ...s,
+              generating: false,
+              error: s.history.length > 0
+                ? "We couldn't create a new version of this page, so your previous one is still shown. Please try again."
+                : "Something went wrong. Please try again.",
+            }
+          : s
       ));
     }
   }
@@ -566,8 +575,8 @@ export function PreviewGenerator({
             const imageUrl = isReal && !slot.generating ? slot.history[slot.currentIndex] ?? null : null;
 
             return (
+              <div key={i} className="space-y-2">
               <PreviewSlot
-                key={i}
                 orderId={orderId}
                 index={i}
                 templateUrl={templateUrls[i]}
@@ -589,6 +598,13 @@ export function PreviewGenerator({
                 onNavigate={(dir) => navigateSlot(i, dir)}
                 onExpand={() => setExpandedIndex(i)}
               />
+              {/* This page's own error, right under its card (not in a list after all of them). */}
+              {isReal && slot.error && !slot.generating && (
+                <div role="alert" className="mx-auto max-w-2xl bg-red-50 border border-red-200 rounded-2xl px-4 py-3 text-sm text-red-700 text-center">
+                  {slot.error}
+                </div>
+              )}
+              </div>
             );
           })}
         </div>
@@ -610,15 +626,6 @@ export function PreviewGenerator({
             </a>
           </div>
         </div>
-      )}
-
-      {/* Per-slot errors */}
-      {slots.map((slot, i) =>
-        slot.error && !slot.generating ? (
-          <div key={`err-${i}`} className="bg-red-50 border border-red-200 rounded-2xl px-4 py-3 text-sm text-red-700">
-            Preview {i + 1} failed: {slot.error}
-          </div>
-        ) : null
       )}
 
       {/* CTA — shown when all done */}
