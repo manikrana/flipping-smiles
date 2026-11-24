@@ -1,4 +1,5 @@
 import { personalizeText } from "@/lib/personalize";
+import { MagicTitle } from "@/components/MagicTitle";
 import { createServerClient } from "@/lib/supabase/server";
 import { signAssets } from "@/lib/supabase/assets";
 import { notFound } from "next/navigation";
@@ -111,12 +112,15 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
             line that slid under the sticky step bar); scroll-mt keeps it clear of
             the bar when the page scrolls to it. */}
         <div className="text-center mb-8 scroll-mt-40">
-          <p className="text-sm font-semibold uppercase tracking-wide text-brand-600 mb-2">
-            {existingPages.length > 0 ? `A sneak peek of ${order.hero_name}'s book` : `Creating ${order.hero_name}'s preview…`}
-          </p>
-          <h1 className="font-display text-3xl sm:text-4xl font-bold text-ink leading-tight">
+          <MagicTitle
+            kicker={
+              <p className="relative text-sm font-semibold uppercase tracking-wide text-brand-600 mb-2">
+                {existingPages.length > 0 ? `A sneak peek of ${order.hero_name}'s book` : `Creating ${order.hero_name}'s preview…`}
+              </p>
+            }
+          >
             {story.title.replace(/{{hero_name}}/g, order.hero_name)}
-          </h1>
+          </MagicTitle>
         </div>
 
         {SHIPPING_STATUS_COPY[order.status] && (

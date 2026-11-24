@@ -83,3 +83,27 @@
   }
 }
 
+
+/* MagicTitle: twinkling sparkles and stardust drifting along the golden swirl. */
+@keyframes magic-twinkle {
+  0%, 100% { opacity: 0.35; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+@keyframes magic-drift {
+  to { stroke-dashoffset: -140; }
+}
+.magic-twinkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: magic-twinkle 2.6s ease-in-out infinite;
+}
+.magic-dust {
+  animation: magic-drift 5s linear infinite;
+}
+.magic-dust-slow {
+  animation-duration: 8s;
+  animation-direction: reverse;
+}
+@media (prefers-reduced-motion: reduce) {
+  .magic-twinkle, .magic-dust { animation: none; }
+}
