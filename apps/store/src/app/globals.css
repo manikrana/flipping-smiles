@@ -98,6 +98,10 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  /* background-clip:text only paints inside the box: extend it below the
+     last line so descenders (the g in "Magic") aren't clipped. */
+  padding-bottom: 0.18em;
+  margin-bottom: -0.18em;
   filter: drop-shadow(0 0 14px rgba(252, 174, 33, 0.35));
   /* Sweep takes ~3s (half the original speed), then rests ~4s. */
   animation: magic-glint 7s ease-in-out infinite;
