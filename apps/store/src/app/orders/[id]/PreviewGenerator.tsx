@@ -153,9 +153,14 @@ function PreviewContent({
             }}
           >
             <p
-              className="whitespace-pre-wrap leading-relaxed rounded-2xl px-5 py-4"
+              className="whitespace-pre-wrap leading-relaxed"
               style={{
                 ...textParagraphStyle,
+                // Padding and corners scale with the image (cqh), like the font. Fixed
+                // px-5/py-4/rounded-2xl made the box look much bigger on small preview
+                // cards than in the full-size view. Values match the old look at full size.
+                padding: "2.5cqh 3cqh",
+                borderRadius: "2.5cqh",
                 ...(textStyle.textBoxBg !== "none" ? { backgroundColor: "rgba(255,255,255,0.55)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)" } : {}),
               }}
             >

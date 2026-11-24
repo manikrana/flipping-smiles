@@ -255,8 +255,12 @@ function PageRenderer({
             proportionally with the page's real ~2433px resolution. */}
         <div className="absolute inset-0 flex justify-center text-center" style={{ paddingInline: "10cqw", alignItems: alignItemsFor(pg.page.vertical_align) }}>
           <p
-            className="whitespace-pre-wrap leading-relaxed rounded-2xl px-5 py-4"
+            className="whitespace-pre-wrap leading-relaxed"
             style={{
+              // Padding and corners scale with the image (cqh), like the font, so the
+              // box keeps the same proportions on small preview cards and full size.
+              padding: "2.5cqh 3cqh",
+              borderRadius: "2.5cqh",
               fontFamily: textStyle.fontFamily,
               fontSize: `${textStyle.fontSizePct}cqh`,
               color: textStyle.color,
