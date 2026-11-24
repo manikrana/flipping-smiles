@@ -1,3 +1,5 @@
+import { personalizeText } from "@/lib/personalize";
+import { MagicTitle } from "@/components/MagicTitle";
 import { createServerClient } from "@/lib/supabase/server";
 import { signAssets } from "@/lib/supabase/assets";
 import { notFound } from "next/navigation";
@@ -77,7 +79,9 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
         pageNumber: p.page_number,
         imageUrl: signedMap[p.image_url] ?? p.image_url,
         textImageUrl: p.text_image_url ? (signedMap[p.text_image_url] ?? p.text_image_url) : null,
-        text: (sp?.text ?? "").replace(/{{hero_name}}/g, order.hero_name),
+        // Full personalization (name + pronouns): reloading this page used to
+        // show raw {{hero_his}}/{{hero_he}} tokens because only the name was swapped.
+        text: personalizeText(sp?.text ?? "", order.hero_name, order.gender === "girl" ? "girl" : "boy"),
         textBgUrl: sp?.text_bg_url ? (signedMap[sp.text_bg_url] ?? sp.text_bg_url) : null,
         verticalAlign: sp?.vertical_align ?? "bottom",
       };
@@ -97,19 +101,26 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
             ← Back to book
           </Link>
           <WizardProgress current={2} />
-          <span className="hidden sm:inline text-xs text-ink/30 font-mono shrink-0">{id.slice(0, 8)}</span>
+          {/* Spacer keeps the steps centered now that the raw order-id fragment is gone
+              (customers see their order number on the confirmation page). */}
+          <span className="hidden sm:inline w-[6.5rem] shrink-0" aria-hidden />
         </div>
       </div>
 
-      <div className="relative max-w-lg mx-auto px-6 pt-10 pb-20">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-ink mb-1">
-            {existingPages.length > 0 ? `${order.hero_name}'s adventure` : `Creating ${order.hero_name}'s preview…`}
-          </h1>
-          <p className="text-sm text-ink/40">
+      <div className="relative max-w-lg mx-auto px-6 pt-24 pb-20">
+        {/* Header: the personalized book title is the headline (it was a small grey
+            line that slid under the sticky step bar); scroll-mt keeps it clear of
+            the bar when the page scrolls to it. */}
+        <div className="text-center mb-8 scroll-mt-40">
+          <MagicTitle
+            kicker={
+              <p className="relative text-sm font-semibold uppercase tracking-wide text-brand-600 mb-2">
+                {existingPages.length > 0 ? `A sneak peek of ${order.hero_name}'s book` : `Creating ${order.hero_name}'s preview…`}
+              </p>
+            }
+          >
             {story.title.replace(/{{hero_name}}/g, order.hero_name)}
-          </p>
+          </MagicTitle>
         </div>
 
         {SHIPPING_STATUS_COPY[order.status] && (

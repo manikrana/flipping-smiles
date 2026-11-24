@@ -83,3 +83,42 @@
   }
 }
 
+
+/* MagicTitle: logo-orange letters, soft warm glow, a periodic golden glint
+   sweeping across the text, and twinkling corner sparkles. */
+.magic-title {
+  /* Base: logo orange (#FC6E07) deepening to its rusty outline (#A63A06).
+     Overlay: a narrow pale-gold band that slides across as the glint. */
+  background-image:
+    linear-gradient(110deg, transparent 40%, rgba(255, 236, 170, 0.95) 50%, transparent 60%),
+    linear-gradient(180deg, #FC6E07 0%, #E25A05 55%, #A63A06 100%);
+  background-size: 250% 100%, 100% 100%;
+  background-position: 150% 0, 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* background-clip:text only paints inside the box: extend it below the
+     last line so descenders (the g in "Magic") aren't clipped. */
+  padding-bottom: 0.18em;
+  margin-bottom: -0.18em;
+  filter: drop-shadow(0 0 14px rgba(252, 174, 33, 0.35));
+  /* Sweep takes ~3s (half the original speed), then rests ~4s. */
+  animation: magic-glint 7s ease-in-out infinite;
+}
+@keyframes magic-glint {
+  0%, 45% { background-position: 150% 0, 0 0; }
+  88%, 100% { background-position: -60% 0, 0 0; }
+}
+.magic-sparkle {
+  filter: drop-shadow(0 0 4px rgba(252, 174, 33, 0.8));
+  animation: magic-twinkle 2.4s ease-in-out infinite;
+}
+@keyframes magic-twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.6) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.1) rotate(20deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .magic-title, .magic-sparkle { animation: none; }
+  .magic-sparkle { opacity: 0.8; }
+}
