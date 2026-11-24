@@ -84,26 +84,36 @@
 }
 
 
-/* MagicTitle: twinkling sparkles and stardust drifting along the golden swirl. */
+/* MagicTitle: logo-orange letters, soft warm glow, a periodic golden glint
+   sweeping across the text, and twinkling corner sparkles. */
+.magic-title {
+  /* Base: logo orange (#FC6E07) deepening to its rusty outline (#A63A06).
+     Overlay: a narrow pale-gold band that slides across as the glint. */
+  background-image:
+    linear-gradient(110deg, transparent 40%, rgba(255, 236, 170, 0.95) 50%, transparent 60%),
+    linear-gradient(180deg, #FC6E07 0%, #E25A05 55%, #A63A06 100%);
+  background-size: 250% 100%, 100% 100%;
+  background-position: 150% 0, 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 14px rgba(252, 174, 33, 0.35));
+  animation: magic-glint 5s ease-in-out infinite;
+}
+@keyframes magic-glint {
+  0%, 55% { background-position: 150% 0, 0 0; }
+  85%, 100% { background-position: -60% 0, 0 0; }
+}
+.magic-sparkle {
+  filter: drop-shadow(0 0 4px rgba(252, 174, 33, 0.8));
+  animation: magic-twinkle 2.4s ease-in-out infinite;
+}
 @keyframes magic-twinkle {
-  0%, 100% { opacity: 0.35; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.15); }
-}
-@keyframes magic-drift {
-  to { stroke-dashoffset: -140; }
-}
-.magic-twinkle {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: magic-twinkle 2.6s ease-in-out infinite;
-}
-.magic-dust {
-  animation: magic-drift 5s linear infinite;
-}
-.magic-dust-slow {
-  animation-duration: 8s;
-  animation-direction: reverse;
+  0%, 100% { opacity: 0.2; transform: scale(0.6) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.1) rotate(20deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .magic-twinkle, .magic-dust { animation: none; }
+  .magic-title, .magic-sparkle { animation: none; }
+  .magic-sparkle { opacity: 0.8; }
 }
