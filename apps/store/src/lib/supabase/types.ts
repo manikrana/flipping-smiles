@@ -6,6 +6,9 @@ export type Database = {
           id: string;
           slug: string;
           title: string;
+          // Sample name shown in the title/subtitle while browsing, before a
+          // customer enters their child's name (falls back to heroNames.ts).
+          sample_hero_name?: string | null;
           description: string;
           age_min: number;
           age_max: number;

@@ -9,7 +9,7 @@ import { TrackedImage } from "@/components/TrackedImage";
 import { FrontCoverOverlay } from "@/components/FrontCoverOverlay";
 import { FRONT_COVER_IMAGE_CLASSES } from "@/lib/coverCrop";
 import { DEFAULT_COVER_LAYOUT } from "@/lib/supabase/types";
-import { pickDefaultHeroName } from "@/lib/heroNames";
+import { sampleHeroName, fillHeroName } from "@/lib/heroNames";
 
 export const dynamic = "force-dynamic";
 
@@ -78,13 +78,13 @@ export default async function CreatePage({ params }: { params: Promise<{ slug: s
                   context="create_page_cover_reminder"
                   storyId={story.id}
                   src={story.cover_image_url}
-                  alt={story.title}
+                  alt={fillHeroName(story.title, sampleHeroName(story))}
                   className={`w-full h-full ${FRONT_COVER_IMAGE_CLASSES}`}
                 />
                 {/* "boy" matches cover_image_url above -- keep them in sync if a girl cover ever renders here */}
                 <FrontCoverOverlay
-                  title={story.title}
-                  subtitle={layout.subtitle.replace(/{{hero_name}}/g, pickDefaultHeroName(story.id, "boy"))}
+                  title={fillHeroName(story.title, sampleHeroName(story))}
+                  subtitle={fillHeroName(layout.subtitle, sampleHeroName(story))}
                   companyName={companyName}
                   titlePosition={layout.titlePosition}
                   titleColor={layout.titleColor}
@@ -101,7 +101,7 @@ export default async function CreatePage({ params }: { params: Promise<{ slug: s
           </div>
           <div>
             <p className="text-xs text-ink/40 font-medium">Personalizing</p>
-            <h1 className="font-display text-lg font-semibold text-ink leading-tight">{story.title}</h1>
+            <h1 className="font-display text-lg font-semibold text-ink leading-tight">{fillHeroName(story.title, sampleHeroName(story))}</h1>
           </div>
         </div>
 

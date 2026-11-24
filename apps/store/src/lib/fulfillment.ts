@@ -27,7 +27,7 @@ export async function markOrderPaidAndFulfill(orderId: string): Promise<boolean>
       await sendOrderConfirmation({
         to: order.contact_email,
         heroName: order.hero_name,
-        bookTitle: order.stories?.title ?? "your book",
+        bookTitle: order.stories?.title ? order.stories.title.replace(/{{hero_name}}/g, order.hero_name) : "your book",
         orderId,
       });
     } catch (emailErr) {

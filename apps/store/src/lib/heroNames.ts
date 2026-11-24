@@ -25,3 +25,20 @@ export function pickDefaultHeroName(seed: string, gender: "boy" | "girl" = "boy"
   }
   return names[Math.abs(hash) % names.length];
 }
+
+// Per-book sample name (stories.sample_hero_name, e.g. a gender-neutral
+// "Alex") wins over the hashed list above, so a book can pick a name that
+// fits its look on both the boy and girl covers. Stories read with select("*")
+// simply have it undefined until the migration runs, and fall back to the list.
+export function sampleHeroName(
+  story: { id: string; sample_hero_name?: string | null },
+  gender: "boy" | "girl" = "boy"
+): string {
+  return story.sample_hero_name?.trim() || pickDefaultHeroName(story.id, gender);
+}
+
+// Titles can carry the name too ("{{hero_name}} and the Night of Christmas
+// Magic"), not just the subtitle; customers must never see the raw token.
+export function fillHeroName(text: string, name: string): string {
+  return text.replace(/{{hero_name}}/g, name);
+}
