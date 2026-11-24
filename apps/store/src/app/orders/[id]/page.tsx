@@ -97,19 +97,23 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
             ← Back to book
           </Link>
           <WizardProgress current={2} />
-          <span className="hidden sm:inline text-xs text-ink/30 font-mono shrink-0">{id.slice(0, 8)}</span>
+          {/* Spacer keeps the steps centered now that the raw order-id fragment is gone
+              (customers see their order number on the confirmation page). */}
+          <span className="hidden sm:inline w-[6.5rem] shrink-0" aria-hidden />
         </div>
       </div>
 
-      <div className="relative max-w-lg mx-auto px-6 pt-10 pb-20">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-ink mb-1">
-            {existingPages.length > 0 ? `${order.hero_name}'s adventure` : `Creating ${order.hero_name}'s preview…`}
-          </h1>
-          <p className="text-sm text-ink/40">
-            {story.title.replace(/{{hero_name}}/g, order.hero_name)}
+      <div className="relative max-w-lg mx-auto px-6 pt-16 pb-20">
+        {/* Header: the personalized book title is the headline (it was a small grey
+            line that slid under the sticky step bar); scroll-mt keeps it clear of
+            the bar when the page scrolls to it. */}
+        <div className="text-center mb-8 scroll-mt-40">
+          <p className="text-sm font-semibold uppercase tracking-wide text-brand-600 mb-2">
+            {existingPages.length > 0 ? `A sneak peek of ${order.hero_name}'s book` : `Creating ${order.hero_name}'s preview…`}
           </p>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold text-ink leading-tight">
+            {story.title.replace(/{{hero_name}}/g, order.hero_name)}
+          </h1>
         </div>
 
         {SHIPPING_STATUS_COPY[order.status] && (
